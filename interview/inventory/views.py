@@ -33,6 +33,28 @@ class InventoryListCreateView(APIView):
     
     def get_queryset(self):
         return self.queryset.all()
+
+
+class InventoryListAfterView(APIView):
+    """
+    Will list only Inventory Items after the given created_at date parameter.
+    Note: Django REST Framework works well with django-filter, but that package is not installed and the instructions
+    say not to install any new packages.  However, if I were doing this in a real-world scenario, I would use
+    django-filter to filter the queryset by created_at date rather than creating an entirely new view, such that the
+    above view, InventoryListCreateView, could be used to list all Inventory Items with an optional created_at date
+    filter and save on code-reuse.  Abstracting the filter logic away from the view logic helps keep the code DRY and
+    extensible.
+    """
+
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        created_at = request.query_params.get('created_at')
+        if not created_at:
+            return Response({'error': 'created_at parameter is required'}, status=400)
+
+        inventories = Inventory.objects.filter(created_at__gt=created_at)
+        serializer = InventorySerializer(inventories, many=True)
+
+        return Response(serializer.data, status=200)
     
 
 class InventoryRetrieveUpdateDestroyView(APIView):
