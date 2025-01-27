@@ -13,3 +13,11 @@ class OrderListCreateView(generics.ListCreateAPIView):
 class OrderTagListCreateView(generics.ListCreateAPIView):
     queryset = OrderTag.objects.all()
     serializer_class = OrderTagSerializer
+
+
+class OrderListByTagView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        tag_name = self.kwargs['tag']
+        return Order.objects.filter(tags__name=tag_name)
