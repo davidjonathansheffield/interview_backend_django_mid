@@ -5,7 +5,9 @@ from rest_framework.views import APIView
 from interview.inventory.models import Inventory, InventoryLanguage, InventoryTag, InventoryType
 from interview.inventory.schemas import InventoryMetaData
 from interview.inventory.serializers import InventoryLanguageSerializer, InventorySerializer, InventoryTagSerializer, InventoryTypeSerializer
+from django.utils.timezone import make_aware
 
+from datetime import datetime
 
 class InventoryListCreateView(APIView):
     queryset = Inventory.objects.all()
@@ -47,15 +49,18 @@ class InventoryListAfterView(APIView):
     """
 
     def get(self, request: Request, *args, **kwargs) -> Response:
-        created_at = request.query_params.get('created_at')
-        if not created_at:
-            return Response({'error': 'created_at parameter is required'}, status=400)
+        date_str = kwargs['date']
 
-        inventories = Inventory.objects.filter(created_at__gt=created_at)
+        try:
+            date_obj = make_aware(datetime.strptime(date_str, "%Y-%m-%d"))
+        except ValueError:
+            return Response({'error': 'Invalid date format.  Please use YYYY-MM-DD.'}, status=400)
+
+        inventories = Inventory.objects.filter(created_at__gte=date_obj)
         serializer = InventorySerializer(inventories, many=True)
 
         return Response(serializer.data, status=200)
-    
+
 
 class InventoryRetrieveUpdateDestroyView(APIView):
     queryset = Inventory.objects.all()
