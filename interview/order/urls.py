@@ -1,7 +1,6 @@
 
 from django.urls import path
-from interview.order.views import OrderListCreateView, OrderTagListCreateView
-
+from interview.order.views import OrderListCreateView, OrderTagListCreateView, OrderDeactivateView
 
 urlpatterns = [
     path('tags/', OrderTagListCreateView.as_view(), name='order-detail'),
