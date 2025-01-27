@@ -12,7 +12,7 @@ def api_client():
 @pytest.fixture
 def create_inventory_items():
     for i in range(15):
-        metadata = InventoryMetaData.objects.create(description=f"Metadata {i}")
+        metadata = {"description": f"Metadata {i}"}
         Inventory.objects.create(name=f"Item {i}", quantity=i, metadata=metadata)
 
 
